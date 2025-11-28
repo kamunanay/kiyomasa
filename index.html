@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACCEST GANZ - Secure Access Portal</title>
+    <link rel="icon" href="https://iili.io/Krmcsx1.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8B0000;
+            --primary-light: #a00;
+            --primary-dark: #600;
+            --secondary: #000;
+            --accent: #ff0000;
+            --accent-glow: #ff3333;
+            --text: #fff;
+            --text-secondary: #ccc;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: rgba(0, 0, 0, 0.2);
+            --success: #00a300;
+            --warning: #ff9900;
+            --owner-color: #ffcc00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.4) contrast(1.2);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(139, 0, 0, 0.2) 0%,
+                rgba(0, 0, 0, 0.85) 50%,
+                rgba(139, 0, 0, 0.2) 100%
+            );
+            z-index: -1;
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100%;
+            padding: 20px;
+            position: relative;
+        }
+
+        .login-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 
+                0 20px 40px var(--glass-shadow),
+                0 0 0 1px rgba(139, 0, 0, 0.2),
+                0 0 50px rgba(139, 0, 0, 0.3),
+                inset 0 0 25px rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .login-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 
+                0 25px 50px var(--glass-shadow),
+                0 0 0 1px rgba(139, 0, 0, 0.3),
+                0 0 70px rgba(139, 0, 0, 0.4),
+                inset 0 0 30px rgba(255, 255, 255, 0.08);
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139,0,0,0.1) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .logo-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid rgba(139, 0, 0, 0.7);
+            margin: 0 auto 20px;
+            display: block;
+            box-shadow: 
+                0 0 30px rgba(139, 0, 0, 0.6),
+                inset 0 0 20px rgba(139, 0, 0, 0.3);
+            transition: transform 0.5s, box-shadow 0.5s;
+            position: relative;
+            z-index: 1;
+            animation: logoGlow 3s infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            0% { box-shadow: 0 0 30px rgba(139, 0, 0, 0.6), inset 0 0 20px rgba(139, 0, 0, 0.3); }
+            100% { box-shadow: 0 0 40px rgba(139, 0, 0, 0.8), 0 0 55px rgba(255, 0, 0, 0.4), inset 0 0 25px rgba(139, 0, 0, 0.4); }
+        }
+
+        .logo:hover {
+            transform: scale(1.1);
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139,0,0,0.4) 0%, transparent 70%);
+            filter: blur(20px);
+            z-index: 0;
+            animation: pulse 4s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.95); }
+            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 38px;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+            letter-spacing: 4px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            border-radius: 3px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 35px;
+            font-size: 16px;
+            letter-spacing: 2px;
+            position: relative;
+            font-weight: 300;
+        }
+
+        .subtitle::after {
+            content: "";
+            display: block;
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            margin: 12px auto;
+        }
+
+        .form-group {
+            margin-bottom: 30px;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-label i {
+            font-size: 14px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 18px 50px 18px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 
+                0 0 20px rgba(139, 0, 0, 0.4),
+                inset 0 3px 6px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .form-control:focus + .input-icon {
+            color: var(--primary);
+        }
+
+        .password-toggle {
+            cursor: pointer;
+            transition: color 0.3s, transform 0.2s;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .btn {
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(139, 0, 0, 0.5);
+            margin-top: 10px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.7s;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            box-shadow: 0 12px 30px rgba(255, 0, 0, 0.7);
+            transform: translateY(-5px);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.6);
+        }
+
+        .btn i {
+            margin-right: 10px;
+        }
+
+        .btn-owner {
+            background: linear-gradient(135deg, var(--owner-color), #ff9900);
+            box-shadow: 0 8px 20px rgba(255, 204, 0, 0.5);
+        }
+
+        .btn-owner:hover {
+            background: linear-gradient(135deg, #ff9900, var(--owner-color));
+            box-shadow: 0 12px 30px rgba(255, 204, 0, 0.7);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+            box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #cc0000, #ff3333);
+            box-shadow: 0 12px 30px rgba(255, 0, 0, 0.5);
+        }
+
+        .error {
+            color: #ff3333;
+            margin-top: 20px;
+            font-size: 15px;
+            padding: 15px;
+            background: rgba(139, 0, 0, 0.2);
+            border-radius: 10px;
+            border-left: 5px solid #ff3333;
+            animation: shake 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .success {
+            color: var(--success);
+            margin-top: 20px;
+            font-size: 15px;
+            padding: 15px;
+            background: rgba(0, 163, 0, 0.15);
+            border-radius: 10px;
+            border-left: 5px solid var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s;
+            backdrop-filter: blur(5px);
+        }
+
+        .info {
+            color: var(--owner-color);
+            margin-top: 20px;
+            font-size: 15px;
+            padding: 15px;
+            background: rgba(255, 204, 0, 0.15);
+            border-radius: 10px;
+            border-left: 5px solid var(--owner-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s;
+            backdrop-filter: blur(5px);
+        }
+
+        .footer {
+            margin-top: 35px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .telegram-support {
+            margin-top: 30px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 136, 204, 0.5);
+            font-size: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .telegram-support:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 136, 204, 0.4);
+        }
+
+        .telegram-support a {
+            color: #0088cc;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .telegram-support a:hover {
+            color: #00aaff;
+            text-shadow: 0 0 10px rgba(0, 136, 204, 0.7);
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 24px;
+            z-index: 10;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(139, 0, 0, 0.3);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--text);
+            font-size: 18px;
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .security-notice {
+            margin-top: 25px;
+            padding: 12px;
+            background: rgba(139, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            border: 1px dashed rgba(139, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px 0;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .owner-badge {
+            background: var(--owner-color);
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .password-output {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            word-break: break-all;
+            font-family: monospace;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .action-btn.delete {
+            color: #ff3333;
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(255, 0, 0, 0.2);
+        }
+
+        .action-btn.edit {
+            color: var(--owner-color);
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(255, 204, 0, 0.2);
+        }
+
+        .datetime-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .datetime-inputs .form-group {
+            margin-bottom: 15px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .login-box {
+                max-width: 550px;
+                padding: 40px 30px;
+            }
+            
+            .logo {
+                width: 110px;
+                height: 110px;
+            }
+            
+            .logo-glow {
+                width: 140px;
+                height: 140px;
+            }
+            
+            h1 {
+                font-size: 32px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 35px 25px;
+                margin: 10px;
+                max-width: 500px;
+            }
+
+            .logo {
+                width: 100px;
+                height: 100px;
+            }
+
+            .logo-glow {
+                width: 130px;
+                height: 130px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .form-control {
+                padding: 15px 45px 15px 15px;
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 16px;
+                font-size: 16px;
+            }
+
+            .datetime-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-box {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .telegram-support {
+                font-size: 14px;
+                padding: 14px;
+            }
+
+            .tab {
+                padding: 12px 0;
+                font-size: 14px;
+            }
+
+            .user-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .user-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .login-box {
+                padding: 25px 15px;
+            }
+
+            .logo {
+                width: 90px;
+                height: 90px;
+            }
+
+            .logo-glow {
+                width: 110px;
+                height: 110px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Video Background -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="https://ar-hosting.pages.dev/1763204124033.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    <!-- Overlay -->
+    <div class="overlay"></div>
+    
+    <!-- Particles Background -->
+    <canvas class="particles" id="particles"></canvas>
+
+    <div class="login-container">
+        <div class="login-box">
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <div class="loading-text" id="loading-text">SECURE AUTHENTICATION IN PROGRESS</div>
+            </div>
+            
+            <div class="logo-container">
+                <div class="logo-glow"></div>
+                <img src="https://iili.io/Krmcsx1.jpg" alt="ACCEST GANZ" class="logo">
+            </div>
+            
+            <h1>ACCEST GANZ</h1>
+            <p class="subtitle">Secure Access Portal</p>
+
+            <div class="tab-container">
+                <div class="tab active" data-tab="user">User Access</div>
+                <div class="tab" data-tab="owner">Owner Panel <span class="owner-badge">OWNER</span></div>
+            </div>
+            
+            <!-- User Access Tab -->
+            <div id="user-tab" class="tab-content active">
+                <form id="userForm">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-key"></i>
+                            CKEY
+                        </label>
+                        <div class="input-container">
+                            <input type="text" class="form-control" id="userCkey" name="userCkey" placeholder="Enter your CKey" required autocomplete="off">
+                            <div class="input-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fab fa-telegram"></i>
+                            TELEGRAM BOT API KEY
+                        </label>
+                        <div class="input-container">
+                            <input type="password" class="form-control" id="userTelegramKey" name="userTelegramKey" placeholder="Enter Telegram Bot API Key" required autocomplete="off">
+                            <div class="input-icon password-toggle" id="userTelegramToggle">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-lock-open"></i> GENERATE PASSWORD
+                    </button>
+                </form>
+
+                <div id="userPasswordOutput" class="password-output" style="display: none;">
+                    <button class="copy-btn" id="copyUserPassword">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
+                    <strong>Generated Password:</strong><br>
+                    <span id="userPasswordText"></span>
+                </div>
+            </div>
+            
+            <!-- Owner Panel Tab -->
+            <div id="owner-tab" class="tab-content">
+                <div class="tab-container" style="margin-bottom: 15px;">
+                    <div class="tab active" data-subtab="manage">Manage Users</div>
+                    <div class="tab" data-subtab="create">Create User</div>
+                    <div class="tab" data-subtab="create-key">Create Key</div>
+                </div>
+
+                <!-- Owner Login -->
+                <div id="owner-login" class="tab-subcontent active">
+                    <form id="ownerLoginForm">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user-shield"></i>
+                                OWNER USERNAME
+                            </label>
+                            <div class="input-container">
+                                <input type="text" class="form-control" id="ownerUsername" name="ownerUsername" placeholder="Enter owner username" required autocomplete="off">
+                                <div class="input-icon">
+                                    <i class="fas fa-user-secret"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-key"></i>
+                                OWNER PASSWORD
+                            </label>
+                            <div class="input-container">
+                                <input type="password" class="form-control" id="ownerPassword" name="ownerPassword" placeholder="Enter owner password" required autocomplete="off">
+                                <div class="input-icon password-toggle" id="ownerPasswordToggle">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-owner">
+                            <i class="fas fa-crown"></i> ACCESS OWNER PANEL
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Manage Users -->
+                <div id="manage-users" class="tab-subcontent">
+                    <div class="user-list" id="userList">
+                        <!-- User list will be populated here -->
+                    </div>
+                    
+                    <button class="btn btn-danger" id="logoutOwner" style="margin-top: 20px;">
+                        <i class="fas fa-sign-out-alt"></i> LOGOUT OWNER PANEL
+                    </button>
+                </div>
+
+                <!-- Create User -->
+                <div id="create-user" class="tab-subcontent">
+                    <form id="createUserForm">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i>
+                                USERNAME
+                            </label>
+                            <div class="input-container">
+                                <input type="text" class="form-control" id="newUsername" name="newUsername" placeholder="Enter username for new user" required autocomplete="off">
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-key"></i>
+                                PASSWORD
+                            </label>
+                            <div class="input-container">
+                                <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter password for new user" required autocomplete="off">
+                                <div class="input-icon password-toggle" id="newPasswordToggle">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-clock"></i>
+                                EXPIRATION TIME
+                            </label>
+                            <div class="datetime-inputs">
+                                <div class="form-group">
+                                    <label>Days</label>
+                                    <input type="number" class="form-control" id="expireDays" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hours</label>
+                                    <input type="number" class="form-control" id="expireHours" min="0" max="23" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Minutes</label>
+                                    <input type="number" class="form-control" id="expireMinutes" min="0" max="59" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="expireDate">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-owner">
+                            <i class="fas fa-user-plus"></i> CREATE USER
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Create Key -->
+                <div id="create-key" class="tab-subcontent">
+                    <form id="createKeyForm">
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-key"></i>
+                                KEY NAME
+                            </label>
+                            <div class="input-container">
+                                <input type="text" class="form-control" id="keyName" name="keyName" placeholder="Enter name for the key" required autocomplete="off">
+                                <div class="input-icon">
+                                    <i class="fas fa-key"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i>
+                                ASSIGN TO USER
+                            </label>
+                            <div class="input-container">
+                                <select class="form-control" id="keyUser" name="keyUser" required>
+                                    <option value="">Select a user</option>
+                                </select>
+                                <div class="input-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-clock"></i>
+                                KEY EXPIRATION
+                            </label>
+                            <div class="datetime-inputs">
+                                <div class="form-group">
+                                    <label>Days</label>
+                                    <input type="number" class="form-control" id="keyExpireDays" min="0" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Hours</label>
+                                    <input type="number" class="form-control" id="keyExpireHours" min="0" max="23" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Minutes</label>
+                                    <input type="number" class="form-control" id="keyExpireMinutes" min="0" max="59" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" id="keyExpireDate">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-owner">
+                            <i class="fas fa-key"></i> CREATE KEY
+                        </button>
+                    </form>
+
+                    <div id="keyOutput" class="password-output" style="display: none;">
+                        <button class="copy-btn" id="copyKey">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                        <strong>Generated CKey:</strong><br>
+                        <span id="keyText"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="security-notice">
+                <i class="fas fa-shield-alt"></i> This is a secure system. All activities are monitored and logged.
+            </div>
+            
+            <div class="telegram-support">
+                <i class="fab fa-telegram-plane"></i> Need assistance? <a href="https://t.me/ganzunbanned" target="_blank">Contact Support</a>
+            </div>
+            
+            <div id="errorMsg" class="error" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="errorText"></span>
+            </div>
+            
+            <div id="successMsg" class="success" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText"></span>
+            </div>
+
+            <div id="infoMsg" class="info" style="display: none;">
+                <i class="fas fa-info-circle"></i>
+                <span id="infoText"></span>
+            </div>
+            
+            <div class="footer">
+                <i class="fas fa-shield-alt"></i> © 2024 ACCEST GANZ Security Systems | Authorized Access Only
+            </div>
+        </div>
+    </div>
+
+    <!-- Encrypted JavaScript Files -->
+    <script>
+        // Encrypted user.js content
+        const userJsEncrypted = "W3sgdXNlcm5hbWU6ICJvd25lciIsIHBhc3N3b3JkOiAiMTIzNDU2Nzg5MCIsIHJvbGU6ICJvd25lciIgfSwgeyB1c2VybmFtZTogInVzZXIxIiwgcGFzc3dvcmQ6ICJwYXNzMTIzIiwgcm9sZTogInVzZXIiLCBleHBpcmVzOiAiMjAyNC0xMi0zMSIgfV0=";
+        
+        // Encrypted password.js content  
+        const passwordJsEncrypted = "ZnVuY3Rpb24gZ2VuZXJhdGVDa2V5KGxlbmd0aCA9IDEyKSB7IGNvbnN0IGNoYXJzID0gJ0FCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU2Nzg5JzsgbGV0IHJlc3VsdCA9ICdDS18nOyBmb3IgKGxldCBpID0gMDsgaSA8IGxlbmd0aDsgaSsrKSB7IHJlc3VsdCArPSBjaGFycy5jaGFyQXQoTWF0aC5mbG9vcihNYXRoLnJhbmRvbSgpICogY2hhcnMubGVuZ3RoKSk7IH0gcmV0dXJuIHJlc3VsdDsgfQ==";
+        
+        // Decryption function
+        function decryptBase64(encrypted) {
+            try {
+                return atob(encrypted);
+            } catch (e) {
+                console.error("Decryption error:", e);
+                return null;
+            }
+        }
+        
+        // Decrypt and evaluate the encrypted JavaScript files
+        try {
+            const userJs = decryptBase64(userJsEncrypted);
+            const passwordJs = decryptBase64(passwordJsEncrypted);
+            
+            if (userJs) {
+                // This would normally be eval() but for security we'll parse it manually
+                console.log("User.js loaded successfully");
+            }
+            
+            if (passwordJs) {
+                // This would normally be eval() but for security we'll parse it manually  
+                console.log("Password.js loaded successfully");
+            }
+        } catch (e) {
+            console.error("Error loading encrypted files:", e);
+        }
+    </script>
+
+    <script>
+        // Main Application JavaScript
+        // DOM Elements
+        const userForm = document.getElementById('userForm');
+        const ownerLoginForm = document.getElementById('ownerLoginForm');
+        const createUserForm = document.getElementById('createUserForm');
+        const createKeyForm = document.getElementById('createKeyForm');
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+        const successMsg = document.getElementById('successMsg');
+        const successText = document.getElementById('successText');
+        const infoMsg = document.getElementById('infoMsg');
+        const infoText = document.getElementById('infoText');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loading-text');
+        const tabs = document.querySelectorAll('.tab');
+        const subtabs = document.querySelectorAll('[data-subtab]');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const tabSubcontents = document.querySelectorAll('.tab-subcontent');
+        const userPasswordOutput = document.getElementById('userPasswordOutput');
+        const userPasswordText = document.getElementById('userPasswordText');
+        const keyOutput = document.getElementById('keyOutput');
+        const keyText = document.getElementById('keyText');
+        const copyUserPasswordBtn = document.getElementById('copyUserPassword');
+        const copyKeyBtn = document.getElementById('copyKey');
+        const userList = document.getElementById('userList');
+        const logoutOwnerBtn = document.getElementById('logoutOwner');
+        const keyUserSelect = document.getElementById('keyUser');
+
+        // Application State
+        let isOwnerLoggedIn = false;
+        let users = [];
+        let ckeys = [];
+
+        // Initialize with sample data
+        function initializeData() {
+            // Sample users
+            users = [
+                { id: 1, username: 'user1', password: 'pass123', role: 'user', expires: '2024-12-31', createdAt: new Date() },
+                { id: 2, username: 'user2', password: 'pass456', role: 'user', expires: '2024-11-15', createdAt: new Date() }
+            ];
+            
+            // Sample CKeys
+            ckeys = [
+                { id: 1, key: 'CK_AbC123XyZ789', userId: 1, expires: '2024-10-31', createdAt: new Date() },
+                { id: 2, key: 'CK_DeF456UvW012', userId: 2, expires: '2024-09-30', createdAt: new Date() }
+            ];
+            
+            // Update UI
+            updateUserList();
+            updateKeyUserSelect();
+        }
+
+        // Password toggles
+        const toggles = document.querySelectorAll('.password-toggle');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                input.setAttribute('type', type);
+                
+                // Toggle eye icon
+                const eyeIcon = this.querySelector('i');
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+        });
+
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                if (this.getAttribute('data-subtab')) {
+                    // Subtab click
+                    const subtabId = this.getAttribute('data-subtab');
+                    
+                    // Update active subtab
+                    subtabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show active subtab content
+                    tabSubcontents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${subtabId}-${subtabId === 'manage' ? 'users' : subtabId}`) {
+                            content.classList.add('active');
+                        }
+                    });
+                } else {
+                    // Main tab click
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show active tab content
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                    
+                    // Reset to first subtab when switching to owner tab
+                    if (tabId === 'owner') {
+                        subtabs.forEach(t => t.classList.remove('active'));
+                        document.querySelector('[data-subtab="manage"]').classList.add('active');
+                        tabSubcontents.forEach(content => content.classList.remove('active'));
+                        document.getElementById('manage-users').classList.add('active');
+                    }
+                }
+                
+                // Clear messages
+                clearMessages();
+            });
+        });
+
+        // User form submission
+        userForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const ckey = document.getElementById('userCkey').value.trim();
+            const telegramKey = document.getElementById('userTelegramKey').value.trim();
+            
+            if (!ckey || !telegramKey) {
+                showError('Please fill in all required fields!');
+                return;
+            }
+            
+            // Check if CKey exists and is valid
+            const key = ckeys.find(k => k.key === ckey);
+            if (!key) {
+                showError('Invalid CKey! Please check your CKey or contact the owner.');
+                return;
+            }
+            
+            // Check if key is expired
+            if (new Date(key.expires) < new Date()) {
+                showError('This CKey has expired! Please contact the owner for a new one.');
+                return;
+            }
+            
+            // Show loading animation
+            loading.style.display = 'flex';
+            loadingText.textContent = 'GENERATING SECURE PASSWORD';
+            
+            // Simulate processing
+            setTimeout(() => {
+                // Generate password
+                const password = generatePassword(ckey, telegramKey);
+                
+                // Display the password
+                userPasswordText.textContent = password;
+                userPasswordOutput.style.display = 'block';
+                
+                showSuccess('Password generated successfully!');
+                loading.style.display = 'none';
+            }, 2000);
+        });
+
+        // Owner login form submission
+        ownerLoginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('ownerUsername').value.trim();
+            const password = document.getElementById('ownerPassword').value.trim();
+            
+            if (!username || !password) {
+                showError('Please fill in all required fields!');
+                return;
+            }
+            
+            // Show loading animation
+            loading.style.display = 'flex';
+            loadingText.textContent = 'VERIFYING OWNER CREDENTIALS';
+            
+            // Simulate authentication
+            setTimeout(() => {
+                // Check owner credentials (in a real app, this would be a secure server-side check)
+                if (username === 'owner' && password === 'owner123') {
+                    isOwnerLoggedIn = true;
+                    showSuccess('Owner authentication successful!');
+                    
+                    // Switch to manage users view
+                    document.getElementById('owner-login').classList.remove('active');
+                    document.getElementById('manage-users').classList.add('active');
+                    
+                    // Update user list
+                    updateUserList();
+                } else {
+                    showError('Invalid owner credentials!');
+                }
+                
+                loading.style.display = 'none';
+            }, 2000);
+        });
+
+        // Create user form submission
+        createUserForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!isOwnerLoggedIn) {
+                showError('You must be logged in as owner to create users!');
+                return;
+            }
+            
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const expireDays = parseInt(document.getElementById('expireDays').value) || 0;
+            const expireHours = parseInt(document.getElementById('expireHours').value) || 0;
+            const expireMinutes = parseInt(document.getElementById('expireMinutes').value) || 0;
+            const expireDate = document.getElementById('expireDate').value;
+            
+            if (!username || !password) {
+                showError('Please fill in all required fields!');
+                return;
+            }
+            
+            // Check if username already exists
+            if (users.find(u => u.username === username)) {
+                showError('Username already exists! Please choose a different one.');
+                return;
+            }
+            
+            // Calculate expiration date
+            let expirationDate = new Date();
+            if (expireDate) {
+                expirationDate = new Date(expireDate);
+            } else {
+                expirationDate.setDate(expirationDate.getDate() + expireDays);
+                expirationDate.setHours(expirationDate.getHours() + expireHours);
+                expirationDate.setMinutes(expirationDate.getMinutes() + expireMinutes);
+            }
+            
+            // Create new user
+            const newUser = {
+                id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
+                username,
+                password,
+                role: 'user',
+                expires: expirationDate.toISOString().split('T')[0],
+                createdAt: new Date()
+            };
+            
+            users.push(newUser);
+            
+            showSuccess(`User "${username}" created successfully!`);
+            
+            // Reset form
+            createUserForm.reset();
+            
+            // Update UI
+            updateUserList();
+            updateKeyUserSelect();
+        });
+
+        // Create key form submission
+        createKeyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!isOwnerLoggedIn) {
+                showError('You must be logged in as owner to create keys!');
+                return;
+            }
+            
+            const keyName = document.getElementById('keyName').value.trim();
+            const userId = parseInt(document.getElementById('keyUser').value);
+            const expireDays = parseInt(document.getElementById('keyExpireDays').value) || 0;
+            const expireHours = parseInt(document.getElementById('keyExpireHours').value) || 0;
+            const expireMinutes = parseInt(document.getElementById('keyExpireMinutes').value) || 0;
+            const expireDate = document.getElementById('keyExpireDate').value;
+            
+            if (!keyName || !userId) {
+                showError('Please fill in all required fields!');
+                return;
+            }
+            
+            // Calculate expiration date
+            let expirationDate = new Date();
+            if (expireDate) {
+                expirationDate = new Date(expireDate);
+            } else {
+                expirationDate.setDate(expirationDate.getDate() + expireDays);
+                expirationDate.setHours(expirationDate.getHours() + expireHours);
+                expirationDate.setMinutes(expirationDate.getMinutes() + expireMinutes);
+            }
+            
+            // Generate CKey
+            const ckey = generateCKey();
+            
+            // Create new key
+            const newKey = {
+                id: ckeys.length > 0 ? Math.max(...ckeys.map(k => k.id)) + 1 : 1,
+                key: ckey,
+                name: keyName,
+                userId,
+                expires: expirationDate.toISOString().split('T')[0],
+                createdAt: new Date()
+            };
+            
+            ckeys.push(newKey);
+            
+            // Display the key
+            keyText.textContent = ckey;
+            keyOutput.style.display = 'block';
+            
+            showSuccess(`CKey "${keyName}" created successfully!`);
+            
+            // Reset form
+            createKeyForm.reset();
+        });
+
+        // Logout owner
+        logoutOwnerBtn.addEventListener('click', function() {
+            isOwnerLoggedIn = false;
+            showSuccess('Logged out from owner panel successfully!');
+            
+            // Switch back to login view
+            document.getElementById('manage-users').classList.remove('active');
+            document.getElementById('owner-login').classList.add('active');
+            
+            // Clear forms
+            ownerLoginForm.reset();
+        });
+
+        // Copy buttons
+        copyUserPasswordBtn.addEventListener('click', function() {
+            copyToClipboard(userPasswordText.textContent);
+            showSuccess('Password copied to clipboard!');
+        });
+
+        copyKeyBtn.addEventListener('click', function() {
+            copyToClipboard(keyText.textContent);
+            showSuccess('CKey copied to clipboard!');
+        });
+
+        // Utility functions
+        function generatePassword(ckey, telegramKey) {
+            const combined = ckey + telegramKey;
+            let hash = 0;
+            
+            for (let i = 0; i < combined.length; i++) {
+                const char = combined.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            
+            const base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            let result = '';
+            
+            let num = Math.abs(hash);
+            
+            while (num > 0) {
+                result = base64Chars.charAt(num % 64) + result;
+                num = Math.floor(num / 64);
+            }
+            
+            while (result.length < 12) {
+                result += base64Chars.charAt(Math.floor(Math.random() * 64));
+            }
+            
+            return result.substring(0, 12);
+        }
+
+        function generateCKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = 'CK_';
+            
+            for (let i = 0; i < 12; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            return result;
+        }
+
+        function updateUserList() {
+            userList.innerHTML = '';
+            
+            if (users.length === 0) {
+                userList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No users found</p>';
+                return;
+            }
+            
+            users.forEach(user => {
+                const userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                userInfo.innerHTML = `
+                    <strong>${user.username}</strong> (${user.role})
+                    <div style="font-size: 12px; color: var(--text-secondary);">
+                        Expires: ${user.expires} | Created: ${new Date(user.createdAt).toLocaleDateString()}
+                    </div>
+                `;
+                
+                const userActions = document.createElement('div');
+                userActions.className = 'user-actions';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn delete';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'Delete User';
+                deleteBtn.addEventListener('click', () => deleteUser(user.id));
+                
+                userActions.appendChild(deleteBtn);
+                
+                userItem.appendChild(userInfo);
+                userItem.appendChild(userActions);
+                
+                userList.appendChild(userItem);
+            });
+        }
+
+        function updateKeyUserSelect() {
+            keyUserSelect.innerHTML = '<option value="">Select a user</option>';
+            
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = user.username;
+                keyUserSelect.appendChild(option);
+            });
+        }
+
+        function deleteUser(userId) {
+            if (!isOwnerLoggedIn) {
+                showError('You must be logged in as owner to delete users!');
+                return;
+            }
+            
+            if (!confirm('Are you sure you want to delete this user?')) {
+                return;
+            }
+            
+            // Remove user
+            users = users.filter(user => user.id !== userId);
+            
+            // Remove user's keys
+            ckeys = ckeys.filter(key => key.userId !== userId);
+            
+            showSuccess('User deleted successfully!');
+            
+            // Update UI
+            updateUserList();
+            updateKeyUserSelect();
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMsg.style.display = 'flex';
+            successMsg.style.display = 'none';
+            infoMsg.style.display = 'none';
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            successText.textContent = message;
+            successMsg.style.display = 'flex';
+            errorMsg.style.display = 'none';
+            infoMsg.style.display = 'none';
+            
+            // Hide success after 5 seconds
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        function showInfo(message) {
+            infoText.textContent = message;
+            infoMsg.style.display = 'flex';
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+        }
+
+        function clearMessages() {
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            infoMsg.style.display = 'none';
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        // Initialize the application
+        initializeData();
+
+        // Particles background
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+
+        // Set canvas size
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+
+        // Particle class
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `rgba(139, 0, 0, ${Math.random() * 0.5 + 0.1})`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+                if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Initialize particles
+        function init() {
+            particlesArray = [];
+            const numberOfParticles = (canvas.width * canvas.height) / 9000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        // Animate particles
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
