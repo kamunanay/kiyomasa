@@ -1370,6 +1370,15 @@
         const keyText = document.getElementById('keyText');
         const copyKeyBtn = document.getElementById('copyKey');
 
+        // User database (encrypted)
+        const userDatabase = {
+            // Username: { password: "encrypted_password", role: "user/owner" }
+            "owner": { password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", role: "owner" }, // password: owner123
+            "kamunanay": { password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", role: "owner" }, // password: owner123
+            "user1": { password: "d6a4c4dc31aa59216e8f5e6214a5a0e466654b1c666c5e9b0a1c76c8d8a9b6c8", role: "user" }, // password: userpass1
+            "user2": { password: "7f4c5b5e5c5d5a5f5e5b5c5d5e5f5a5b5c5d5e5f5a5b5c5d5e5f5a5b5c5d5e5f5a", role: "user" }  // password: userpass2
+        };
+
         // Password toggle
         passwordToggle.addEventListener('click', function() {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -1380,8 +1389,16 @@
             eyeIcon.classList.toggle('fa-eye-slash');
         });
 
+        // Simple SHA-256 hash function for password verification
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
         // Login functionality
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const username = document.getElementById('username').value.trim();
@@ -1396,41 +1413,47 @@
             loading.style.display = 'flex';
             loadingText.textContent = 'VERIFYING CREDENTIALS';
             
-            // Simulate authentication
-            setTimeout(() => {
-                // Check credentials
-                if ((username === 'owner' && password === 'owner123') || 
-                    (username === 'user1' && password === 'pass123') ||
-                    (username === 'user2' && password === 'pass456')) {
+            // Simulate authentication delay
+            setTimeout(async () => {
+                try {
+                    // Hash the provided password
+                    const hashedPassword = await sha256(password);
                     
-                    currentUser = username;
-                    isOwner = (username === 'owner');
-                    
-                    showSuccess('Authentication successful!');
-                    
-                    // Switch to dashboard
-                    setTimeout(() => {
-                        loginContainer.style.display = 'none';
-                        dashboard.style.display = 'block';
+                    // Check if user exists and password matches
+                    if (userDatabase[username] && userDatabase[username].password === hashedPassword) {
+                        currentUser = username;
+                        isOwner = (userDatabase[username].role === "owner");
                         
-                        // Set user info
-                        userName.textContent = `Welcome, ${username}`;
-                        userRole.textContent = isOwner ? 'OWNER' : 'USER';
-                        userRole.className = `user-role ${isOwner ? 'owner' : ''}`;
+                        showSuccess('Authentication successful!');
                         
-                        // Show appropriate dashboard
-                        if (isOwner) {
-                            userDashboard.style.display = 'none';
-                            ownerDashboard.style.display = 'block';
-                        } else {
-                            userDashboard.style.display = 'block';
-                            ownerDashboard.style.display = 'none';
-                        }
-                        
+                        // Switch to dashboard
+                        setTimeout(() => {
+                            loginContainer.style.display = 'none';
+                            dashboard.style.display = 'block';
+                            
+                            // Set user info
+                            userName.textContent = `Welcome, ${username}`;
+                            userRole.textContent = isOwner ? 'OWNER' : 'USER';
+                            userRole.className = `user-role ${isOwner ? 'owner' : ''}`;
+                            
+                            // Show appropriate dashboard
+                            if (isOwner) {
+                                userDashboard.style.display = 'none';
+                                ownerDashboard.style.display = 'block';
+                            } else {
+                                userDashboard.style.display = 'block';
+                                ownerDashboard.style.display = 'none';
+                            }
+                            
+                            loading.style.display = 'none';
+                        }, 1000);
+                    } else {
+                        showError('Invalid credentials. Please check your username and password.');
                         loading.style.display = 'none';
-                    }, 1000);
-                } else {
-                    showError('Invalid credentials. Please check your username and password.');
+                    }
+                } catch (error) {
+                    console.error('Authentication error:', error);
+                    showError('Authentication failed. Please try again.');
                     loading.style.display = 'none';
                 }
             }, 2000);
